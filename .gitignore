@@ -51,4 +51,4 @@ Session.vim
 .vs
 
 /Content/Northwood/**
-!/Content/Python/**
+!/Content/Python/**/*.py
