@@ -72,6 +72,8 @@ def getStatcMeshLODData():
     
     PML = unreal.ProceduralMeshLibrary
     staticMeshes = getAssetClass('StaticMesh')
+    staticMeshLODData = []
+    
     for staticMesh in staticMeshes:
         staticMeshTriCount = []
         numLODs = staticMesh.get_num_lods()
@@ -92,7 +94,53 @@ def getStatcMeshLODData():
         for i in range(1, len(staticMeshTriCount)):
             staticMeshReductions.append(int((staticMeshTriCount[i]/staticMeshTriCount[0]) * 100))
             
-        print(staticMesh.get_name())
-        print(staticMeshTriCount)
-        print(staticMeshReductions)
-        print('_______')
+        # print(staticMesh.get_name())
+        # print(staticMeshTriCount)
+        # print(staticMeshReductions)
+        # print('_______')
+        
+        try:
+            LODData = (staticMesh.get_name(), staticMeshTriCount[1])
+        except:
+            pass
+        staticMeshLODData.append(LODData)
+        
+    return staticMeshLODData
+        
+def getStaticMeshInstanceCounts():
+
+    levelActors = unreal.EditorActorSubsystem().get_all_level_actors()
+    staticMeshActors = []
+    staticMeshActorCounts = []
+    processedActors = []
+    aggregateTriCounts = []
+    
+    for levelActor in levelActors:
+        if (levelActor.get_class().get_name()) == 'StaticMeshActor':
+            staticMeshComponent = levelActor.static_mesh_component
+            staticMesh = staticMeshComponent.static_mesh
+            staticMeshActors.append(staticMesh.get_name())       
+    
+    for staticMeshActor in staticMeshActors:
+        if staticMeshActor not in processedActors:  
+            actorCounts = (staticMeshActor, staticMeshActors.count(staticMeshActor))
+            staticMeshActorCounts.append(actorCounts)
+            processedActors.append(staticMeshActor)
+            
+    staticMeshActorCounts.sort(key = lambda a: a[1], reverse = True)
+            
+    #for item in staticMeshActorCounts: print(item)
+    
+    LODData = getStatcMeshLODData()
+    
+    #for item in LODData: print(item)
+    
+    for i in range(len(staticMeshActorCounts)):
+        for j in range(len(LODData)):
+            if staticMeshActorCounts[i][0] == LODData[j][0]:
+                aggregateTriCount = (staticMeshActorCounts[i][0], staticMeshActorCounts[i][1] * LODData[j][1])
+                aggregateTriCounts.append(aggregateTriCount)
+                
+    aggregateTriCounts.sort(key = lambda a: a[1], reverse = True)
+    
+    for item in aggregateTriCounts: print(item)
