@@ -32,3 +32,21 @@ def getSelectedActors():
     selectedActors = EAS.get_selected_level_actors()
     
     for selectedActor in selectedActors: print(selectedActor)
+    
+def getAssetClass(classType):
+
+    EAL = unreal.EditorAssetLibrary
+    
+    assetPaths = EAL.list_assets('/Game')
+    
+    assets = []
+    
+    for assetPath in assetPaths:
+        assetData = EAL.find_asset_data(assetPath)
+        assetClass = assetData.asset_class_path
+        print(assetClass.asset_name)
+        if assetClass.asset_name == classType:
+            assets.append(assetData.get_asset())
+            
+    for asset in assets: print(asset)
+    return assets
